@@ -1,0 +1,30 @@
+  pvdisplay
+  lvdisplay
+   
+  # Create VM
+  xen-create-image --hostname=test --size=20G --memory=128mb --vcpus=2 --ip=192.17.239.11
+  # More options: xen-create-image --hostname=test --size=20G --memory=128mb --vcpus=2 --lvm=XenVG --fs=ext4 --bridge=xenbr0 --ip=192.17.239.11 --netmask=255.255.255.128 --gateway=192.17.239.1 --pygrub 
+   
+  # Start VM
+  xl create /etc/xen/test.cfg
+  
+  # Destroy VM                                                                                                                                                                                            
+  xen destroy test-guest
+  xen-delete-image test-guest --lvm XenVG
+  
+  # Grow
+  lvextend -L +16G /dev/XenVG/test-guest-disk
+  
+  # Manual
+  lvcreate -L 4G -n test-guest XenVG
+  lvdisplay
+  mkfs.ext4 /dev/XenVG/test-guest
+  mkdir -p /xen/test-guest
+  mount /dev/XenVG/test-guest /xen/test-guest
+  
+  # Exit Guest Console (xen console test)
+  Ctrl+]
+  
+  # Start VM in debug mode and attach to console
+  xl create /etc/xen/<config>.cfg -d -c
+                                         
